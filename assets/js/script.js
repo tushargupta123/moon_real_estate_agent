@@ -147,6 +147,7 @@
   const carousel = document.getElementById("partnership-carousel");
 
   if (carousel) {
+    const viewport = carousel.querySelector(".partnership-carousel__viewport");
     const track = carousel.querySelector(".partnership-carousel__track");
     const slides = carousel.querySelectorAll(".partnership-carousel__slide");
     const prevBtn = carousel.querySelector(".partnership-carousel__btn--prev");
@@ -155,27 +156,80 @@
     let index = 0;
     let autoplayTimer = null;
     let touchStartX = 0;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    function goTo(i) {
-      index = (i + total) % total;
-      track.style.transform = `translateX(-${index * 100}%)`;
+    function getSlidesPerView() {
+      if (window.innerWidth <= 575) return 1;
+      if (window.innerWidth <= 991) return 2;
+      return 3;
+    }
+
+    function getGap() {
+      if (window.innerWidth <= 575) return 12;
+      return 16;
+    }
+
+    function getMetrics() {
+      const spv = getSlidesPerView();
+      const gap = getGap();
+      const viewportWidth = viewport.clientWidth;
+      const slideWidth = (viewportWidth - gap * (spv - 1)) / spv;
+      const maxIndex = Math.max(0, total - spv);
+      return { spv, gap, slideWidth, maxIndex };
+    }
+
+    function applyLayout() {
+      const { spv, gap, slideWidth, maxIndex } = getMetrics();
+
+      carousel.style.setProperty("--spv", String(spv));
+      carousel.style.setProperty("--carousel-gap", `${gap}px`);
+      carousel.style.setProperty("--slide-width", `${slideWidth}px`);
+
+      if (index > maxIndex) {
+        index = maxIndex;
+      }
+
+      goTo(index, false);
+    }
+
+    function goTo(i, animate = true) {
+      const { spv, gap, slideWidth, maxIndex } = getMetrics();
+      index = Math.max(0, Math.min(i, maxIndex));
+      const offset = index * (slideWidth + gap);
+
+      track.style.transition =
+        animate && !prefersReducedMotion
+          ? "transform 0.7s cubic-bezier(0.22, 1, 0.36, 1)"
+          : "none";
+      track.style.transform = `translate3d(-${offset}px, 0, 0)`;
 
       slides.forEach((slide, n) => {
-        slide.classList.toggle("is-active", n === index);
+        slide.classList.toggle("is-active", n >= index && n < index + spv);
       });
+
+      if (!animate) {
+        requestAnimationFrame(() => {
+          track.style.transition =
+            prefersReducedMotion ? "none" : "transform 0.7s cubic-bezier(0.22, 1, 0.36, 1)";
+        });
+      }
     }
 
     function next() {
-      goTo(index + 1);
+      const { maxIndex } = getMetrics();
+      goTo(index >= maxIndex ? 0 : index + 1);
     }
 
     function prev() {
-      goTo(index - 1);
+      const { maxIndex } = getMetrics();
+      goTo(index <= 0 ? maxIndex : index - 1);
     }
 
     function startAutoplay() {
       stopAutoplay();
-      autoplayTimer = setInterval(next, 5000);
+      if (!prefersReducedMotion) {
+        autoplayTimer = setInterval(next, 5000);
+      }
     }
 
     function stopAutoplay() {
@@ -230,7 +284,17 @@
       { passive: true }
     );
 
+    if ("ResizeObserver" in window) {
+      const ro = new ResizeObserver(() => applyLayout());
+      ro.observe(viewport);
+    } else {
+      window.addEventListener("resize", applyLayout);
+    }
+
+    applyLayout();
     startAutoplay();
+
+    window.addEventListener("load", applyLayout);
   }
 
   /* ── Smooth anchor offset for fixed nav ── */
