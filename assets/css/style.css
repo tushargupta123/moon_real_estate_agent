@@ -1184,9 +1184,30 @@ ul {
 
 .event-recap__gallery {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
   margin-bottom: 2.5rem;
+}
+
+.event-recap__photo {
+  margin: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: rgba(12, 18, 42, 0.06);
+  border: 1px solid rgba(12, 18, 42, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  padding: 0.5rem;
+}
+
+.event-recap__photo img {
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+  object-fit: contain;
+  display: block;
 }
 
 .event-recap__cta {
