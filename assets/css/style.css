@@ -1161,6 +1161,41 @@ ul {
   transform: scale(1.06);
 }
 
+/* ── Event Recap ── */
+.event-recap {
+  background: linear-gradient(180deg, var(--color-surface) 0%, rgba(12, 18, 42, 0.04) 100%);
+}
+
+.event-recap__highlight {
+  max-width: 820px;
+  margin: 2.5rem auto 2rem;
+  padding: 1.5rem 1.75rem;
+  border-left: 3px solid var(--color-gold, #c9a227);
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--color-text-muted, #4a5568);
+}
+
+.event-recap__highlight strong {
+  color: var(--color-navy, #0c122a);
+}
+
+.event-recap__gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.event-recap__cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
 /* ── Team / Leadership ── */
 
 .team {
